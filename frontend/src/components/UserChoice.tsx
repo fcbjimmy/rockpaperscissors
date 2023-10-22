@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import paperImg from "/images/paper.png";
 import stoneImg from "/images/stone.png";
 import scissorsImg from "/images/scissors.png";
-import { socket } from "../App";
+import { socket } from "../utils/socketIo";
 import { auth } from "../../firebase-config";
 import CardChoice from "./CardChoice";
 
@@ -13,6 +13,7 @@ type Props = {
   setSelectedChoice: React.Dispatch<React.SetStateAction<Options | null>>;
   choiceId: null | number;
   setChoiceId: React.Dispatch<React.SetStateAction<number | null>>;
+  room: string;
 };
 
 const UserChoice = ({
@@ -20,6 +21,7 @@ const UserChoice = ({
   setSelectedChoice,
   setChoiceId,
   choiceId,
+  room,
 }: Props) => {
   //options
   const options: { value: Options; image: string }[] = [
@@ -36,13 +38,14 @@ const UserChoice = ({
       name: auth.currentUser?.displayName,
       email: auth.currentUser?.email,
       choice,
+      room,
     });
   };
 
   return (
     <div>
       <h1>Choose your option:</h1>
-      {selectedChoice && choiceId ? (
+      {selectedChoice && typeof choiceId === "number" ? (
         <div className="flex justify-center">
           <CardChoice option={options[choiceId]} />
         </div>

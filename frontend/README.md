@@ -1,25 +1,13 @@
-# React + TypeScript + Vite
+# Socket io
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
-
-Currently, two official plugins are available:
-
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
-
-- Configure the top-level `parserOptions` property like this:
-
-```js
-   parserOptions: {
-    ecmaVersion: 'latest',
-    sourceType: 'module',
-    project: ['./tsconfig.json', './tsconfig.node.json'],
-    tsconfigRootDir: __dirname,
-   },
-```
+https://www.reddit.com/r/react/comments/113tdrf/help_with_socket_io_and_dynamic_rooms/
 
 https://stackoverflow.com/questions/70421655/get-socket-io-not-found-404
+
+https://stackoverflow.com/questions/76939095/socket-io-is-adding-users-twice-with-different-socket-id-in-react-hooks
+
+https://stackoverflow.com/questions/69053509/how-to-broadcast-to-a-specific-room-with-socketio
+
+https://stackoverflow.com/questions/42988262/differences-between-io-to-io-in-and-socket-to-for-emitting-to-all-client
+
+https://stackoverflow.com/questions/10342681/whats-the-difference-between-io-sockets-emit-and-broadcast?rq=3

@@ -13,7 +13,7 @@ const CardChoice = ({ option, handleChoice, id }: Props) => {
     <div
       className="cursor-pointer p-2 rounded text-lg text-green-500 border border-blue-400"
       onClick={() => {
-        if (id && handleChoice) {
+        if (typeof id === "number" && handleChoice) {
           handleChoice(option.value, id);
         } else return;
       }}

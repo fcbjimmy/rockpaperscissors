@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 import UserChoice from "./UserChoice";
-import { socket } from "../App";
+import { socket } from "../utils/socketIo";
 import paper from "/images/paper.png";
 import rock from "/images/stone.png";
 import scissors from "/images/scissors.png";
+import { auth } from "../../firebase-config";
 
 type Options = "rock" | "paper" | "scissors";
 type ReceivedData = {
@@ -11,24 +12,62 @@ type ReceivedData = {
   email: "";
   choice: Options;
 };
-const Playground = () => {
+
+type Props = {
+  room: string;
+};
+
+const Playground = ({ room }: Props) => {
   const [selectedChoice, setSelectedChoice] = useState<null | Options>(null);
   const [choiceId, setChoiceId] = useState<null | number>(null);
   const [opponentData, setOpponentData] = useState<null | ReceivedData>(null);
-
+  // const [players, setPlayers] = useState<null | [string, string][]>([]);
   let resultTimeout: NodeJS.Timeout | undefined;
 
+  console.log(auth.currentUser);
+  //Join Room
+  socket.emit("join_room", {
+    room,
+    id: socket.id,
+    name: auth.currentUser?.displayName,
+    email: auth.currentUser?.email,
+  });
+
+  useEffect(() => {
+    socket.on("message", (data: { [key: string]: string }) => {
+      console.log("data from the server");
+      console.log(data);
+    });
+    return () => {
+      socket.off("message", () => {});
+    };
+  }, []);
+
+  //Receiving signal of the players who are online
+  // useEffect(() => {
+  //   socket.on("onlineUsers", (user) => {
+  //     console.log("My ID", socket.id);
+  //     console.log(user);
+  //   });
+  //   //clean up ✅
+  //   return () => {
+  //     socket.off("onlineUsers", () => {});
+  //   };
+  // }, []);
+
+  //Receiving opponent choice (Need to make it so that it receives more than one choice)
   useEffect(() => {
     socket.on("receivedChoice", (data: ReceivedData) => {
-      console.log(data);
       setOpponentData(data);
     });
 
+    //clean up ✅
     return () => {
-      socket.off("receivedChoice", (data) => {});
+      socket.off("receivedChoice", () => {});
     };
-  }, [socket]);
+  }, []);
 
+  //Receiving game result and resetting the game
   useEffect(() => {
     socket.on("gameResult", (winner) => {
       resultTimeout = setTimeout(() => {
@@ -51,17 +90,24 @@ const Playground = () => {
           setChoiceId(null);
         }
       }, 2000);
+
+      //clean up the timeout and socket✅
       return () => {
         if (resultTimeout) {
           clearTimeout(resultTimeout);
         }
+        socket.off("gameResult", () => {});
       };
     });
-  }, [socket]);
+  }, []);
 
   return (
     <section>
-      <div className="flex justify-center gap-10">
+      <div
+        className={`flex ${
+          selectedChoice && typeof choiceId === "number" ? "" : "flex-col"
+        } justify-center gap-10`}
+      >
         {/* {selectedChoice ? (
           <div>
             <h1>My Choice</h1>
@@ -86,7 +132,7 @@ const Playground = () => {
         {opponentData ? (
           <div>
             <h1>{opponentData.name}'s choice</h1>
-            <div className="cursor-pointer p-2 rounded text-lg text-green-500 border border-blue-400">
+            <div className="cursor-pointer p-2 rounded text-lg text-green-500 border border-blue-400 w-max">
               <img
                 src={
                   opponentData.choice === "paper"
@@ -104,13 +150,15 @@ const Playground = () => {
         ) : (
           <></>
         )}
+
+        <UserChoice
+          selectedChoice={selectedChoice}
+          setSelectedChoice={setSelectedChoice}
+          choiceId={choiceId}
+          setChoiceId={setChoiceId}
+          room={room}
+        />
       </div>
-      <UserChoice
-        selectedChoice={selectedChoice}
-        setSelectedChoice={setSelectedChoice}
-        choiceId={choiceId}
-        setChoiceId={setChoiceId}
-      />
     </section>
   );
 };
