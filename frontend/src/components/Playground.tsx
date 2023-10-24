@@ -24,15 +24,6 @@ const Playground = ({ room }: Props) => {
   // const [players, setPlayers] = useState<null | [string, string][]>([]);
   let resultTimeout: NodeJS.Timeout | undefined;
 
-  console.log(auth.currentUser);
-  //Join Room
-  socket.emit("join_room", {
-    room,
-    id: socket.id,
-    name: auth.currentUser?.displayName,
-    email: auth.currentUser?.email,
-  });
-
   useEffect(() => {
     socket.on("message", (data: { [key: string]: string }) => {
       console.log("data from the server");
@@ -58,6 +49,8 @@ const Playground = ({ room }: Props) => {
   //Receiving opponent choice (Need to make it so that it receives more than one choice)
   useEffect(() => {
     socket.on("receivedChoice", (data: ReceivedData) => {
+      console.log("receivedChoice");
+      console.log(data);
       setOpponentData(data);
     });
 

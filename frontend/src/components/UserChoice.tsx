@@ -29,12 +29,14 @@ const UserChoice = ({
     { value: "paper", image: paperImg },
     { value: "scissors", image: scissorsImg },
   ];
+
   //function
-  const handleChoice = (choice: Options, id: number) => {
+  const handleChoice = async (choice: Options, id: number) => {
     setSelectedChoice(choice);
     setChoiceId(id);
     console.log("ID", socket.id);
-    socket.emit("sendChoice", {
+
+    await socket.emit("sendChoice", {
       name: auth.currentUser?.displayName,
       email: auth.currentUser?.email,
       choice,

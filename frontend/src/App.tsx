@@ -14,6 +14,8 @@ function App() {
   const [room, setRoom] = useState<null | string>(null);
   const [selected, setSelected] = useState<null | number>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
+  const joinInputRef = useRef<HTMLInputElement | null>(null);
+
   const options: number[] = [2, 3, 4];
 
   useEffect(() => {
@@ -45,7 +47,7 @@ function App() {
     }
   };
 
-  //Listen to room taken / created
+  //If room name is taken, then pop up warning
 
   useEffect(() => {
     socket.on("roomTaken", (data) => {
@@ -59,6 +61,8 @@ function App() {
     };
   }, []);
 
+  //if Room is created successfully join the room
+
   useEffect(() => {
     socket.on("roomCreated", (data) => {
       console.log(data);
@@ -67,19 +71,54 @@ function App() {
       });
       setRoom(data.room);
     });
-
     return () => {
-      socket.off("roomCreated", (data) => {
-        console.log(data);
-      });
+      socket.off("roomCreated", () => {});
     };
   }, []);
 
-  const roomValueToNumber = (value: string | undefined) => {
-    if (value) {
-      setRoom(value);
-    } else return;
+  //Before joining a room lets check whether such room exists
+  //if exists then join
+
+  const checkRoom = async (value: string | undefined) => {
+    await socket.emit("join_room", {
+      room: value,
+      id: socket.id,
+      name: auth.currentUser?.displayName,
+      email: auth.currentUser?.email,
+    });
   };
+  useEffect(() => {
+    socket.on("join_room", (data) => {
+      console.log(data);
+    });
+    return () => {
+      socket.off("join_room", () => {});
+    };
+  }, []);
+  useEffect(() => {
+    socket.on("joined", (data) => {
+      console.log(data);
+      toast.success(data.message, {
+        position: toast.POSITION.TOP_CENTER,
+      });
+      setRoom(data.room);
+    });
+    return () => {
+      socket.off("joined", () => {});
+    };
+  }, []);
+
+  useEffect(() => {
+    socket.on("notJoined", (data) => {
+      console.log(data);
+      toast.warn(data.message, {
+        position: toast.POSITION.TOP_CENTER,
+      });
+    });
+    return () => {
+      socket.off("notJoined", () => {});
+    };
+  }, []);
 
   if (!authenticated) {
     return (
@@ -128,12 +167,12 @@ function App() {
             <div className="flex gap-5">
               <input
                 type="string"
-                // ref={inputRef}
+                ref={joinInputRef}
                 className="border border-black p-2 rounded"
                 placeholder="Join Room"
               />
               <button
-                // onClick={() => roomValueToNumber(inputRef.current?.value)}
+                onClick={() => checkRoom(joinInputRef.current?.value)}
                 className="border p-1 rounded"
               >
                 Enter
