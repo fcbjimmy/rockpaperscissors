@@ -62,6 +62,7 @@ io.on("connection", (socket) => {
         message: `Welcome to room ${room}`,
       });
       io.sockets.in(room).emit("message", `${name} has entered the room `);
+      socket.join(room);
       console.log(gameRooms);
       console.log(playerChoices);
     } else {
@@ -80,7 +81,7 @@ io.on("connection", (socket) => {
     // const sockets = await io.in(room.room).fetchSockets();
     // const socketIds = sockets.map((socket) => socket.id); // creates an array with the ids in the room
   });
-
+  let resultTimeout;
   socket.on("sendChoice", (data) => {
     // console.log("choice", choice);
     //choice is an object {name, email, choice}
@@ -93,6 +94,10 @@ io.on("connection", (socket) => {
       Object.keys(playerChoices[room]).length
     );
     socket.to(room).emit("receivedChoice", data);
+    // socket.broadcast.to(room).emit("receivedChoice", data);
+    // socket.broadcast.emit("receivedChoice", data);
+    // io.in(room).emit("receivedChoice", data);
+    // io.sockets.in(room).emit("receivedChoice", data);
     if (
       gameRooms[room]["noOfPlayers"] === Object.keys(playerChoices[room]).length
     ) {
@@ -106,7 +111,10 @@ io.on("connection", (socket) => {
       };
       // socket.broadcast.emit("receivedChoice", data);
       const winner = determineWinner(player1Choice, player2Choice);
-      io.emit("gameResult", winner);
+
+      // io.emit("gameResult", winner);
+      io.in(room).emit("gameResult", winner);
+
       // Clear choices
       playerChoices[room] = {};
     }

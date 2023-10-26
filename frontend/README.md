@@ -12,12 +12,15 @@ https://stackoverflow.com/questions/42988262/differences-between-io-to-io-in-and
 
 https://stackoverflow.com/questions/10342681/whats-the-difference-between-io-sockets-emit-and-broadcast?rq=3
 
+https://stackoverflow.com/questions/69110986/socketio-server-not-emitting-event-back-to-user-who-triggered-event
+
 # todo
 
 - Create and join Room and set the number of players ✅
 - Test playing with just two players and put number of players in the if condition ✅
 - Need to attach the room number to socket emit event (server and client) ✅
-- show the opponent choice in the frontend
+- show the opponent choice in the frontend ✅
+- test playing with two ✅
 - Test playing with three and four
 - Make the logic to determine the winner when the room needs 3 or 4 players
 - client side need to be able to handle multiplayer

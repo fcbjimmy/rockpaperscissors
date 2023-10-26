@@ -5,6 +5,7 @@ import paper from "/images/paper.png";
 import rock from "/images/stone.png";
 import scissors from "/images/scissors.png";
 import { auth } from "../../firebase-config";
+import io from "socket.io-client";
 
 type Options = "rock" | "paper" | "scissors";
 type ReceivedData = {
@@ -21,6 +22,8 @@ const Playground = ({ room }: Props) => {
   const [selectedChoice, setSelectedChoice] = useState<null | Options>(null);
   const [choiceId, setChoiceId] = useState<null | number>(null);
   const [opponentData, setOpponentData] = useState<null | ReceivedData>(null);
+  const [showAllPlayersChoices, setShowAllPlayersChoices] =
+    useState<boolean>(false);
   // const [players, setPlayers] = useState<null | [string, string][]>([]);
   let resultTimeout: NodeJS.Timeout | undefined;
 
@@ -63,35 +66,39 @@ const Playground = ({ room }: Props) => {
   //Receiving game result and resetting the game
   useEffect(() => {
     socket.on("gameResult", (winner) => {
+      setShowAllPlayersChoices(true);
       resultTimeout = setTimeout(() => {
         if (winner === "draw") {
           console.log("Its a Draw");
           setSelectedChoice(null);
           setOpponentData(null);
           setChoiceId(null);
+          setShowAllPlayersChoices(false);
         } else if (socket.id === winner) {
           console.log("Winner", winner);
           console.log("You Win");
           setSelectedChoice(null);
           setOpponentData(null);
           setChoiceId(null);
+          setShowAllPlayersChoices(false);
         } else {
           console.log("Looser", socket.id);
           console.log("You Loose");
           setSelectedChoice(null);
           setOpponentData(null);
           setChoiceId(null);
+          setShowAllPlayersChoices(false);
         }
       }, 2000);
-
-      //clean up the timeout and socket✅
-      return () => {
-        if (resultTimeout) {
-          clearTimeout(resultTimeout);
-        }
-        socket.off("gameResult", () => {});
-      };
     });
+
+    //clean up the timeout and socket✅
+    return () => {
+      if (resultTimeout) {
+        clearTimeout(resultTimeout);
+      }
+      socket.off("gameResult", () => {});
+    };
   }, []);
 
   return (
@@ -122,7 +129,7 @@ const Playground = ({ room }: Props) => {
         ) : (
           <></>
         )} */}
-        {opponentData ? (
+        {showAllPlayersChoices && opponentData ? (
           <div>
             <h1>{opponentData.name}'s choice</h1>
             <div className="cursor-pointer p-2 rounded text-lg text-green-500 border border-blue-400 w-max">
